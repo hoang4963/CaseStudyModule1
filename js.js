@@ -209,7 +209,7 @@ class Board {
     drawBoard() {
         for (let row = 0; row < this.grid.length; row++){
             for (let col = 0; col < this.grid[0].length; col++) {
-                this.drawCell(col,row, WHITE_COLOR_ID)
+                this.drawCell(col,row, this.grid[row][col])
             }
         }
     }
@@ -259,7 +259,10 @@ class Brick {
             this.clear();
             this.rowPos++;
             this.draw();
+            return
         }
+        this.handleLanded();
+        generateNewBrick();
     }
     rotate() {
         if (!this.checkCollision(this.rowPos + 1, this.colPos,this.layout[(this.activeIndex + 1) % 4]  )) {
@@ -273,20 +276,42 @@ class Brick {
         for (let row = 0; row < nextLayout.length; row++ ){
             for (let col =0; col < nextLayout[0].length; col++){
                 if( nextLayout[row][col] !== WHITE_COLOR_ID){
-                    if ((col + nextCol >= COLS) || (row + nextRow >= ROWS) || (col + nextCol < 0))
+                    if ((col + nextCol >= COLS) ||
+                        (row + nextRow >= ROWS) ||
+                        (col + nextCol < 0) ||
+                        (board.grid[row + nextRow][col + nextCol] !== WHITE_COLOR_ID))
                         return true;
                 }
             }
         }
     return false;
     }
+    handleLanded() {
+        for (let row = 0; row < this.layout[this.activeIndex].length; row++ ){
+            for (let col =0; col < this.layout[this.activeIndex][0].length; col++){
+                if( this.layout[this.activeIndex][row][col] !== WHITE_COLOR_ID){
+                    board.grid[row + this.rowPos][col + this.colPos] = this.id;
+                }
+            }
+        }
+        board.drawBoard();
+    }
+}
+function generateNewBrick() {
+    brick = new Brick(Math.floor(Math.random()*10) % 7)
+    // tao ra brick bat ky tu 0 - 6
 }
 let board = new Board(ctx);
 // console.log(board) ve thu bang
 board.drawBoard()
-let brick = new Brick(0);
+generateNewBrick();
 brick.draw()
 // ve thu 1 hinh
+
+setInterval(() => {
+    brick.moveDown();
+}, 1000)
+
 document.addEventListener('keydown', (e) => {
     switch (e.code){
         case KEYCODE.LEFT:
