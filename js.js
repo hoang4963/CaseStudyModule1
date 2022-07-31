@@ -12,6 +12,12 @@ const COLOR_MAPPING = [
     'black',
     'white'
 ]
+const KEYCODE = {
+    LEFT : 'ArrowLeft',
+    RIGHT : 'ArrowRight',
+    UP : 'ArrowUp',
+    DOWN : 'ArrowDown',
+}
 const BRICK_LAYOUT = [
     [
         [
@@ -225,9 +231,54 @@ class Brick {
             }
         }
     }
+    clear(){
+        for (let row = 0; row < this.layout[this.activeIndex].length; row++ ){
+            for (let col =0; col < this.layout[this.activeIndex][0].length; col++){
+                if( this.layout[this.activeIndex][row][col] !== WHITE_COLOR_ID){
+                    board.drawCell(col + this.colPos,row + this.rowPos,WHITE_COLOR_ID);
+                }
+            }
+        }
+    }
     moveLeft() {
+        if (!this.checkCollision(this.rowPos, this.colPos - 1,this.layout[this.activeIndex] )){
+        this.clear();
         this.colPos--;
         this.draw();
+        }
+    }
+    moveRight() {
+        if (!this.checkCollision(this.rowPos, this.colPos + 1,this.layout[this.activeIndex] )) {
+            this.clear();
+            this.colPos++;
+            this.draw();
+        }
+    }
+    moveDown() {
+        if (!this.checkCollision(this.rowPos + 1, this.colPos,this.layout[this.activeIndex] )) {
+            this.clear();
+            this.rowPos++;
+            this.draw();
+        }
+    }
+    rotate() {
+        if (!this.checkCollision(this.rowPos + 1, this.colPos,this.layout[(this.activeIndex + 1) % 4]  )) {
+            this.clear();
+            this.activeIndex = (this.activeIndex + 1) % 4;
+            // chi co 4 hinh dang nen chia 4 thi chac chan thi se chi co so tu 0 toi 3
+            this.draw()
+        }
+    }
+    checkCollision(nextRow,nextCol,nextLayout){
+        for (let row = 0; row < nextLayout.length; row++ ){
+            for (let col =0; col < nextLayout[0].length; col++){
+                if( nextLayout[row][col] !== WHITE_COLOR_ID){
+                    if ((col + nextCol >= COLS) || (row + nextRow >= ROWS) || (col + nextCol < 0))
+                        return true;
+                }
+            }
+        }
+    return false;
     }
 }
 let board = new Board(ctx);
@@ -236,3 +287,21 @@ board.drawBoard()
 let brick = new Brick(0);
 brick.draw()
 // ve thu 1 hinh
+document.addEventListener('keydown', (e) => {
+    switch (e.code){
+        case KEYCODE.LEFT:
+            brick.moveLeft();
+            break;
+        case KEYCODE.RIGHT:
+            brick.moveRight();
+            break;
+        case KEYCODE.DOWN:
+            brick.moveDown();
+            break;
+        case KEYCODE.UP:
+            brick.rotate();
+            break;
+        default:
+            break;
+    }
+})
