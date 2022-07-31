@@ -371,7 +371,6 @@ document.addEventListener('keydown', (e) => {
             break;
         case KEYCODE.DOWN:
             brick.moveDown();
-            brick.moveDown();
             break;
         case KEYCODE.UP:
             brick.rotate();
